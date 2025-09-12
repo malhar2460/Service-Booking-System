@@ -8,8 +8,8 @@ Service Booking System lets customers book home services (e.g., cleaning). Booki
 - All required configuration is stored in a .env file at the project root and inside backend folder.
 - Copy the example file and update it with your values
 
-cp .env-example .env
-cp backend/.env-example backend/env
+- cp .env-example .env
+- cp backend/.env-example backend/env
 
 2. Running with Docker
 
@@ -17,19 +17,17 @@ cp backend/.env-example backend/env
 - Docker installed
 - Docker Compose installed
 
-Step 1: Build the backend image
-docker compose build --no-cache
+* Step 1: Build the backend image
+- docker compose build --no-cache
 
-Step 2: Start containers
-docker-compose up
+* Step 2: Start containers
+- docker-compose up
 
-- This will start:
-PostgreSQL
-Spring Boot Backend
+- This will start: PostgreSQL, Spring Boot Backend
 
-Step 3: Verify services
-Backend - http://localhost:8080 (OR port you specify in .env file for docker)
-PostgreSQL - running on localhost:5432 (OR port you specify in .env file for docker)
+* Step 3: Verify services
+- Backend - http://localhost:8080 (OR port you specify in .env file for docker)
+- PostgreSQL - running on localhost:5432 (OR port you specify in .env file for docker)
 
-Step 4: Stop containers
-docker compose down
+* Step 4: Stop containers
+- docker compose down

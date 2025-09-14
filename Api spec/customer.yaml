@@ -1,0 +1,811 @@
+openapi: 3.0.3
+info:
+  title: Service Booking API
+  version: 1.0.0
+  description: API documentation for Smart Laundry Service backend
+
+paths:
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: >
+        Registers a new user in the system. Validates input, checks for duplicates,
+        saves user details, encodes password, geocodes address, and persists user and address in the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '200':
+          description: Successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponse'
+        '400':
+          description: Invalid input data
+        '409':
+          description: Conflict – Email or phone already exists
+        '500':
+          description: Internal server error
+
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: >
+        Authenticates a user by email or phone number and password. Sends OTP to user for verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP sent to your email address. Please check and verify."
+        '400':
+          description: Invalid credentials or input
+        '401':
+          description: Unauthorized – Invalid username or password
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /verify-otp:
+    post:
+      tags:
+        - Authentication
+      summary: Verify OTP
+      description: >
+        Validates OTP for the given identifier (phone or email). If valid, OTP is consumed and user is authenticated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpRequest'
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  message:
+                    type: string
+                    example: "OTP verified successfully. Login complete."
+        '400':
+          description: Invalid OTP
+        '401':
+          description: Unauthorized – OTP expired or invalid
+        '404':
+          description: Identifier not found
+        '500':
+          description: Internal server error
+
+  /resend-otp:
+    post:
+      tags:
+        - Authentication
+      summary: Resend OTP
+      description: >
+        Resends an OTP for a specific order or purpose. Used in flows like pickup, delivery, or provider handover.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendOtpRequest'
+      responses:
+        '200':
+          description: OTP resent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP resent successfully to user@example.com"
+        '400':
+          description: Invalid request
+        '404':
+          description: Order not found
+        '500':
+          description: Internal server error
+
+  /orders/details:
+    post:
+      tags:
+        - Orders
+      summary: Select service and subservice for an order
+      description: >
+        Initializes an order draft by saving the selected service and subservice.
+        Must be completed before adding items, contact info, and placing the order.
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the customer
+        - name: dummyOrderId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Temporary order ID used for building the draft order in Redis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceId:
+                  type: string
+                  description: Selected service ID (from `/services`)
+                  example: "SRV001"
+                subServiceId:
+                  type: string
+                  description: Selected subservice ID (from `/subservices`)
+                  example: "SUB005"
+      responses:
+        '200':
+          description: Service and subservice saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Service and subservice saved for order draft."
+                  dummyOrderId:
+                    type: string
+                    example: "ORD_TMP_12345"
+                  serviceId:
+                    type: string
+                    example: "SRV001"
+                  subServiceId:
+                    type: string
+                    example: "SUB005"
+        '400':
+          description: Invalid service or subservice ID
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /orders/place/{orderId}:
+    post:
+      tags:
+        - Orders
+      summary: Place an order
+      description: >
+        Finalizes an order temporarily stored in Redis. On success, creates a persistent order,
+        saves booking items, and notifies the service provider.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Temporary dummy order ID (stored in Redis)
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the customer placing the order
+      responses:
+        '201':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                  status:
+                    type: string
+                  serviceProviderId:
+                    type: string
+                  serviceProviderName:
+                    type: string
+                  customerName:
+                    type: string
+                  totalAmount:
+                    type: number
+                    format: double
+                  createdAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid Redis order data or missing information
+        '404':
+          description: User or order not found
+        '500':
+          description: Internal server error
+
+  /orders/contact/{orderId}:
+    post:
+      tags:
+        - Orders
+      summary: Save contact information for an order
+      description: >
+        Saves customer's contact details into Redis for a temporary order. Geocodes address to latitude/longitude.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Temporary dummy order ID
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contactName:
+                  type: string
+                  example: "John Doe"
+                contactPhone:
+                  type: string
+                  example: "+91-9876543210"
+                contactAddress:
+                  type: string
+                  example: "221B Baker Street, London"
+      responses:
+        '200':
+          description: Contact information saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Contact info stored successfully in Redis.
+                  latitude:
+                    type: number
+                    format: double
+                    example: 51.523774
+                  longitude:
+                    type: number
+                    format: double
+                    example: -0.158538
+        '400':
+          description: Missing required contact fields
+        '404':
+          description: User or dummy order not found
+        '500':
+          description: Internal server error
+
+paths:
+  /orders/summary:
+    get:
+      summary: Get order summary
+      description: >
+        Generates a detailed order summary including items, GST, delivery charges, discount, final price,
+        and promotion details. Also returns the current order status and bill status.
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          description: Unique identifier of the order
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully generated order summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                  serviceName:
+                    type: string
+                  subServiceName:
+                    type: string
+                  price:
+                    type: number
+                    format: double
+                  finalPrice:
+                    type: number
+                    format: double
+                  gstAmount:
+                    type: number
+                    format: double
+                  deliveryCharge:
+                    type: number
+                    format: double
+                  finalAmount:
+                    type: number
+                    format: double
+                  status:
+                    type: string
+                    description: Bill status (e.g., PAID, UNPAID)
+                  orderStatus:
+                    type: string
+                    description: Current order status
+                  invoiceNumber:
+                    type: string
+        '400':
+          description: Invalid request or missing data
+        '404':
+          description: Order not found
+        '500':
+          description: Internal server error
+
+  /orders/{orderId}/mark-paid:
+    put:
+      summary: Mark bill as paid
+      description: >
+        Marks the bill associated with the given order as **PAID**.
+        Requires the payment to already be completed (`PaymentStatus = PAID`).
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Unique identifier of the order
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bill marked as paid successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                  billStatus:
+                    type: string
+                    example: PAID
+                  message:
+                    type: string
+                    example: Bill successfully marked as PAID.
+        '400':
+          description: Payment is not completed yet
+        '404':
+          description: Order or Bill not found
+        '500':
+          description: Internal server error
+
+  /orders/cancel/{orderId}:
+    put:
+      summary: Cancel an existing order
+      description: >
+        Cancels an order belonging to the authenticated user.
+        - Orders already **CANCELLED** or **COMPLETED** cannot be cancelled again.
+        - Service provider is notified via email (and optionally SMS) after cancellation.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Unique identifier of the order to cancel
+          schema:
+            type: string
+        - name: userId
+          in: query
+          required: true
+          description: Unique identifier of the user requesting cancellation
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                    example: "ORD12345"
+                  status:
+                    type: string
+                    example: "CANCELLED"
+                  message:
+                    type: string
+                    example: "Order cancelled and provider notified."
+        '400':
+          description: Invalid request (e.g., order already cancelled or completed)
+        '403':
+          description: User not authorized to cancel this order
+        '404':
+          description: Order not found
+        '500':
+          description: Internal server error
+
+  /orders/track/{orderId}:
+    get:
+      summary: Track order status and timeline
+      description: >
+        Retrieves the current status of an order along with its timeline of status changes.
+        Only the user who placed the order is authorized to access this endpoint.
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Unique ID of the order
+          schema:
+            type: string
+        - name: userId
+          in: query
+          required: true
+          description: ID of the user making the request (used for authorization)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order tracking details successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackOrderResponseDto"
+        '400':
+          description: Invalid order ID or user ID
+        '401':
+          description: Unauthorized – the user is not allowed to track this order
+        '404':
+          description: Order not found
+        '500':
+          description: Server error
+
+  /roles:
+    get:
+      summary: Get all user roles
+      description: Returns a list of all available user roles in the system.
+      tags:
+        - Roles
+      responses:
+        '200':
+          description: List of user roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: CUSTOMER
+        '500':
+          description: Internal server error
+
+  /states:
+    get:
+      summary: Get all states
+      description: Retrieves a list of all available states from the system.
+      tags:
+        - States
+      responses:
+        '200':
+          description: List of states retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StateDTO'
+        '500':
+          description: Internal server error
+
+  /cities:
+    get:
+      summary: Get all cities
+      description: Retrieves a list of all cities available in the system.
+      tags:
+        - Cities
+      responses:
+        '200':
+          description: List of cities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CityDTO'
+        '500':
+          description: Internal server error
+
+  /cities/get/{stateName}:
+    get:
+      summary: Get cities by state
+      description: Retrieves a list of cities belonging to a given state.
+      tags:
+        - Cities
+      parameters:
+        - name: stateName
+          in: path
+          required: true
+          description: Name of the state for which cities should be fetched
+          schema:
+            type: string
+            example: Maharashtra
+      responses:
+        '200':
+          description: List of cities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CityDTO'
+        '404':
+          description: No cities found for the given state
+        '500':
+          description: Internal server error
+
+  /services:
+    get:
+      summary: Get all services
+      description: Retrieves a list of all services available in the system.
+      tags:
+        - Services
+      responses:
+        '200':
+          description: List of services retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceDTO'
+        '500':
+          description: Internal server error
+
+  /subservices:
+    get:
+      summary: Get subservices by service ID
+      description: Retrieves a list of subservices associated with a given service.
+      tags:
+        - Subservices
+      parameters:
+        - name: serviceId
+          in: query
+          required: true
+          description: The ID of the service for which subservices should be fetched
+          schema:
+            type: string
+            example: SVC001
+      responses:
+        '200':
+          description: List of subservices retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubServiceDTO'
+        '404':
+          description: No subservices found for the given service
+        '500':
+          description: Internal server error
+
+  /orders/provider-feedback/{orderId}:
+    post:
+      summary: Submit feedback for the service provider
+      description: >
+        Allows a customer to submit feedback (rating and review) for the service provider of a given order.
+        - The order must belong to the customer.
+        - Feedback can include a numeric rating and an optional text review.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Unique identifier of the order
+          schema:
+            type: string
+        - name: userId
+          in: query
+          required: true
+          description: Unique identifier of the customer giving feedback
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orderId
+                - rating
+              properties:
+                orderId:
+                  type: string
+                  description: ID of the order being reviewed
+                  example: "ORD12345"
+                rating:
+                  type: integer
+                  format: int32
+                  minimum: 1
+                  maximum: 5
+                  description: Rating given to the service provider (1-5)
+                  example: 4
+                review:
+                  type: string
+                  description: Optional review text
+                  example: "The service was quick and professional."
+      responses:
+        '200':
+          description: Feedback submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: string
+                    example: "ORD12345"
+                  serviceProviderId:
+                    type: string
+                    example: "SP98765"
+                  rating:
+                    type: integer
+                    example: 4
+                  review:
+                    type: string
+                    example: "The service was quick and professional."
+                  message:
+                    type: string
+                    example: "Feedback saved successfully."
+        '400':
+          description: Invalid input (missing fields, bad rating value)
+        '403':
+          description: User not authorized to give feedback on this order
+        '404':
+          description: User or order not found
+        '500':
+          description: Internal server error
+
+  /customer/profile/update:
+    put:
+      summary: Update customer profile
+      description: Updates an existing user's profile information.
+      tags:
+        - Customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateDto"
+      responses:
+        '200':
+          description: Profile successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Users"
+        '400':
+          description: Invalid input data
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+
+  /customer/serviceProviders/{id}:
+    get:
+      summary: Get all service providers for a customer
+      description: >
+        Retrieves a list of service providers available for a given customer.
+        Includes basic service provider details along with their address.
+      tags:
+        - Customer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Customer ID for whom service providers are being fetched
+          schema:
+            type: string
+            example: US12345
+      responses:
+        '200':
+          description: List of service providers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerServiceProviderDTO"
+        '404':
+          description: Customer not found
+        '500':
+          description: Server error
+
+  /orders/{orderid}/bill:
+    get:
+      summary: Get bill summary for an order
+      description: >
+        Retrieves the bill details for a specific order, including service, subservice, items, totals, and payment status.
+        If no bill exists, returns an error.
+      tags:
+        - Orders
+      parameters:
+        - name: orderid
+          in: path
+          required: true
+          description: Unique identifier of the order
+          schema:
+            type: string
+            example: OR12345
+      responses:
+        '200':
+          description: Bill summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSummaryDto"
+        '404':
+          description: Order not found
+        '409
+
+paths:
+  /api/payments/create/{invoiceNumber}:
+    post:
+      summary: Create Razorpay payment order
+      description: >
+        Creates a Razorpay order for the given invoice number.  
+        The order amount is derived from the bill’s final price, multiplied by 100 (paise).
+      tags:
+        - Payments
+      parameters:
+        - name: invoiceNumber
+          in: path
+          required: true
+          description: Invoice number for which payment is to be created
+          schema:
+            type: string
+            example: INV20250913001
+      responses:
+        "200":
+          description: Razorpay order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  razorpayOrderId:
+                    type: string
+                    example: "order_JI0b7X1xPqABCd"
+        "400":
+          description: Invalid invoice number or missing bill
+        "500":
+          description: Failed to create Razorpay order
+

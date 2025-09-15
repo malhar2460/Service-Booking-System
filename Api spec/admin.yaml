@@ -1,0 +1,1428 @@
+openapi: 3.0.3
+info:
+  title: API documentation for Service Booking System
+  version: 1.0.0
+  description: >
+    API documentation for admin dashboard.
+    
+servers:
+  - url: http://localhost:8080
+  
+tags:
+  - name: Revenue
+    description: Revenue analytics endpoints for admin
+  - name: Report
+    description: Order and feedback report endpoints for admin
+  - name: Request
+    description: Provider requests related endpoints for admin 
+  - name: Service
+    description: Service managing endpoints for admin
+  - name: Users
+    description: User reports related endpoints for admin
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ==== Revenue DTOs ====
+    RevenueResponseDTO:
+      type: object
+      properties:
+        totalRevenue: 
+          type: number
+          format: double
+        totalOrders: 
+          type: integer
+        grossSales: 
+          type: number
+          format: double
+        serviceProviderPayouts: 
+          type: number
+          format: double
+        avgOrderValue: 
+          type: number
+          format: double
+
+    RevenueBreakdownResponseTableDTO:
+      type: object
+      properties:
+        serviceProviderRevenue: 
+          type: number
+          format: double
+        adminRevenue: 
+          type: number
+          format: double
+
+    RevenueBreakDownResponseGraphDTO:
+      type: object
+      properties:
+        serviceProviderRevenue: 
+          type: number
+          format: double
+
+    TotalRevenueDTO:
+      type: object
+      properties:
+        orderId: 
+          type: integer
+        date: 
+          type: string
+          format: date-time
+        customerName: 
+          type: string
+        totalPaid: 
+          type: number 
+          format: double
+        providerPayout: 
+          type: number
+          format: double
+        adminRevenue: 
+          type: number
+          format: double
+
+    OrderResponseDTO:
+      type: object
+      properties:
+        customerName: 
+          type: string
+        providerName: 
+          type: string
+        billDTO:
+          $ref: '#/components/schemas/BillDTO'
+        paymentDTO:
+          $ref: '#/components/schemas/PaymentDTO'
+        payoutDTOS:
+          type: array
+          items: { $ref: '#/components/schemas/PayoutDTO' }
+        adminRevenueDTO:
+          $ref: '#/components/schemas/AdminRevenueDTO'
+
+    BillDTO:
+      type: object
+      properties:
+        invoiceNumber: 
+          type: integer
+        charge: 
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [paid, pending]
+        gst: 
+          type: number
+          format: double
+        total: 
+          type: number
+          format: double
+
+    PaymentDTO:
+      type: object
+      properties:
+        paymentId: 
+          type: integer
+        transactionId: 
+          type: string
+        dateTime: 
+          type: string
+          format: date-time
+
+    PayoutDTO:
+      type: object
+      properties:
+        payoutId: 
+          type: integer
+        service_earning: 
+          type: number
+          format: double
+        charge: 
+          type: number
+          format: double
+        finalAmount: 
+          type: number
+          format: double
+        transactionId: 
+          type: string
+        payoutStatus:
+          type: string
+          enum: [pending, completed, failed]
+        dateTime: { type: string, format: date-time }
+
+    AdminRevenueDTO:
+      type: object
+      properties:
+        profit: 
+          type: number
+          format: double
+        
+    RevenueTrendDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        data: 
+          type: array
+          items:
+            $ref: '#/components/schemas/RevenueGraphPointDTO'
+          
+    RevenueGraphPointDTO:
+      type: object
+      properties:
+        label: 
+          type: string
+        revenue:
+          type: number
+          format: double
+
+    ServiceProviderRevenueTableDTO:
+      type: object
+      properties:
+        providerId: 
+          type: integer
+        totalRevenue: 
+          type: integer
+        platformCharges: 
+          type: integer
+        dateTime: 
+          type: string
+        payoutCount: 
+          type: integer
+        startDate: 
+          type: string
+        endDate: 
+          type: string
+
+    ServiceProviderRevenueGraphDTO:
+      type: object
+      properties:
+        title: 
+          type: string
+        data: 
+          $ref: '#/components/schemas/RevenueGraphPointDTO'
+
+    # ==== Order DTOs ====
+    OrderTrendGraphDTO:
+      type: object
+      properties:
+        orderVolumeTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderTrendDataPoint'
+
+    OrderTrendDataPoint:
+      type: object
+      properties:
+        label:
+          type: string
+        count: 
+          type: integer
+
+    PerUserReportResponseDTO:
+      type: object
+      properties:
+        userId: 
+          type: string
+        id: 
+          type: integer
+        businessName: 
+          type: string
+        orderCount: 
+          type: integer
+
+    # ==== Feedback DTOs ====
+    FeedbackTrendGraphDTO:
+      type: object
+      properties:
+        feedbackVolumeTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackTrendDataPoint'
+
+    FeedbackTrendDataPoint:
+      type: object
+      properties:
+        label: 
+          type: string
+        count: 
+          type: integer
+
+    PerProviderFeedbackReportResponseDTO:
+      type: object
+      properties:
+        userId: 
+          type: integer
+        id: 
+          type: integer
+        businessName: 
+          type: string
+        feedbackCount:
+          type: integer
+        
+    # ==== Request DTOs ====
+    ServiceProviderRequestDTO:
+      type: object
+      properties:
+        userId: 
+          type: integer
+        firstName:
+          type: string
+        lastName: 
+          type: string
+        phoneNo: 
+          type: string
+        email: 
+          type: string
+        businessName: 
+          type: string
+        businessLicenseNumber: 
+          type: string
+        gstNumber: 
+          type: string
+        profileImage: 
+          type: string
+        aadharCardImage: 
+          type: string
+        panCardImage: 
+          type: string
+        businessUtilityBillImage: 
+          type: string
+        bankName: 
+          type: string
+        bankAccountNumber: 
+          type: string
+        accountHolderName: 
+          type: string
+        ifscCode: 
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDTO'
+        priceDTO:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceDTO'
+
+    AddressDTO:
+      type: object
+      properties:
+        name: 
+          type: string
+        areaName:
+          type: string
+        pincode: 
+          type: string
+        cityName:  
+          type: string
+
+    PriceDTO:
+      type: object
+      properties:
+        serviceId: 
+          type: string
+        subServiceId: 
+          type: string
+        price: 
+          type: number
+          format: double
+        
+    # ==== Service DTOs ====
+    ServiceSummaryDTO:
+      type: object
+      properties:
+        serviceId: 
+          type: integer
+        serviceName: 
+          type: string
+        count: 
+          type: integer
+        
+    ManageServiceListingRequestDTO:
+      type: object
+      properties:
+        serviceName:
+          type: string
+        subServiceName:
+          type: string
+      required:
+        - serviceName
+        
+    # ==== User DTOs ====
+    CustomerResponseDTO:
+      type: object
+      properties:
+        userId: 
+          type: integer
+        firstName: 
+          type: string
+        lastName: 
+          type: string
+        phone: 
+          type: string
+        email: 
+          type: string
+          format: email
+        joinAt:
+          type: string
+          format: date-time
+        addresses:
+          $ref: '#/components/schemas/CustomerAddressDTO'
+
+    CustomerAddressDTO:
+      type: object
+      properties:
+        name: 
+          type: string
+        areaName:
+          type: string
+        pincode: 
+          type: string
+        cityName:  
+          type: string
+
+    ServiceProviderResponseDTO:
+      type: object
+      properties:
+        userId: 
+          type: integer
+        firstName:
+          type: string
+        lastName: 
+          type: string
+        phoneNo: 
+          type: string
+        email: 
+          type: string
+        businessName: 
+          type: string
+        businessLicenseNumber: 
+          type: string
+        gstNumber: 
+          type: string
+        profileImage: 
+          type: string
+        aadharCardImage: 
+          type: string
+        panCardImage: 
+          type: string
+        businessUtilityBillImage: 
+          type: string
+        bankName: 
+          type: string
+        bankAccountNumber: 
+          type: string
+        accountHolderName: 
+          type: string
+        ifscCode: 
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDTO'
+        priceDTO:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceDTO'
+
+  responses:
+    BadRequestError:
+      description: Invalid Request.
+    UnauthorizedError:
+      description: Unauthorized. Missing or invalid JWT.
+    ForbiddenError:
+      description: Forbidden. User does not have admin access.
+    NotFoundError:
+      description: Resource not found.
+    ServerError:
+      description: Internal server error.
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ================= Revenue APIs =================
+  /revenue/summary:
+    get:
+      tags: [Revenue]
+      summary: Get Revenue Summary
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema: { type: string, default: Overall }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Revenue summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueResponseDTO"
+        "400": 
+          $ref: '#/components/responses/BadRequestError'
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/breakdown/table:
+    get:
+      tags: [Revenue]
+      summary: Get Revenue Breakdown (Table)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema: { type: string, default: Overall }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Revenue breakdown (table format)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueBreakdownResponseTableDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/breakdown/graph:
+    get:
+      tags: [Revenue]
+      summary: Get Revenue Breakdown (Graph)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema: { type: string, default: Overall }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Revenue breakdown (graph format)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueBreakDownResponseGraphDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/total-revenue:
+    get:
+      tags: [Revenue]
+      summary: Get Total Revenue Orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema: { type: string, default: Overall }
+        - in: query
+          name: startDate
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: List of orders with revenue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TotalRevenueDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/total-revenue/{orderId}:
+    get:
+      tags: [Revenue]
+      summary: Get Order Detail (Revenue)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Order details with revenue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponseDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "404":
+          $ref: '#/components/responses/NotFoundError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/trends:
+    get:
+      tags: [Revenue]
+      summary: Get Revenue Trends Graph
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: type
+          schema: { type: string, default: gross sales }
+        - in: query
+          name: filter
+          schema: { type: string, default: monthly, enum: [monthly, quarterly, yearly] }
+      responses:
+        "200":
+          description: Revenue trend data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueTrendDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/provider-analytics-list:
+    get:
+      tags: [Revenue]
+      summary: Get Service Provider Revenue Table
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema: { type: string, default: monthly }
+      responses:
+        "200":
+          description: Provider revenue table
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceProviderRevenueTableDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  /revenue/provider-analytics-list/{providerId}:
+    get:
+      tags: [Revenue]
+      summary: Get Service Provider Revenue Graph
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: filter
+          schema: { type: string, default: Overall }
+      responses:
+        "200":
+          description: Provider revenue graph
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceProviderRevenueGraphDTO"
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403":
+          $ref: '#/components/responses/ForbiddenError'
+        "404":
+          $ref: '#/components/responses/NotFoundError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+              
+
+  # ================= Order Reports APIs =================
+  /reports/order/trend:
+    get:
+      tags: [Report]
+      summary: Get order volume trend
+      description: Returns order volume trend (monthly, quarterly, yearly).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Order trend data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderTrendGraphDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+
+  /reports/order/user-report-list:
+    get:
+      tags: [Report]
+      summary: Get order report list per provider
+      description: Returns list of service provider order analytics.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: keyword
+          schema: { type: string }
+        - in: query
+          name: sortBy
+          schema: { type: string, default: order }
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Order report list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PerUserReportResponseDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+
+  /reports/order/user-report-list/graph/{id}:
+    get:
+      tags: [Report]
+      summary: Get order trend graph for provider
+      description: Returns graph for order analytics of a specific service provider.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Order trend graph
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderTrendGraphDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '404': 
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+
+  # ================= Feedback Reports APIs =================
+  /reports/feedback/trend:
+    get:
+      tags: [Report]
+      summary: Get feedback volume trend
+      description: Returns feedback trend (monthly, quarterly, yearly).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Feedback trend data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackTrendGraphDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+
+  /reports/feedback/user-report-list:
+    get:
+      tags: [Report]
+      summary: Get feedback report list per provider
+      description: Returns list of service provider feedback analytics.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: keyword
+          schema: { type: string }
+        - in: query
+          name: sortBy
+          schema: { type: string, default: feedback }
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Feedback report list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PerProviderFeedbackReportResponseDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+
+  /reports/feedback/user-report-list/graph/{id}:
+    get:
+      tags: [Report]
+      summary: Get feedback trend graph for provider
+      description: Returns graph for feedback analytics of a specific service provider.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: monthly
+            enum: [monthly, quarterly, yearly]
+      responses:
+        '200':
+          description: Feedback trend graph
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackTrendGraphDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '404': 
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+        
+  # ================= Request APIs =================
+  /request/provider:
+    get:
+      tags: [Request]
+      summary: Get all pending service provider profiles
+      description: Returns a list of all pending service provider registration requests.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of pending service provider profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceProviderRequestDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+
+  /request/accept/{userId}:
+    post:
+      tags: [Request]
+      summary: Accept a service provider request
+      description: Accepts the registration request of a service provider by user ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully accepted provider
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400': 
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+              
+
+  /request/reject/{userId}:
+    post:
+      tags: [Request]
+      summary: Reject a service provider request
+      description: Rejects the registration request of a service provider by user ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully rejected provider
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+              
+
+  # ================= Service APIs =================
+  /service/summary:
+    get:
+      tags: [Service]
+      summary: Return count of services
+      description: Return total count of sub services available for each service.
+      security:
+        - bearerAuth: []
+      responses:
+        '200' :
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceSummaryDTO'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '404': 
+          $ref: '#/components/responses/NotFoundError'
+        '500': 
+          $ref: '#/components/responses/ServerError'
+      
+  /service/add-services:
+    post:
+      tags: [Service]
+      summary: Render a form to submit services
+      description: Display on form which is used to add new services.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManageServiceListingRequestDTO"
+      responses:
+        '200':
+          description: Service successfully added
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+          
+  /service/get-services:
+    get:
+      tags: [Service]
+      summary: Get all services
+      description: Fetches all services linked to the authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully rejected provider
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        
+  /service/add-subservices:
+    post:
+      tags: [Service]
+      summary: Add a new sub-service
+      description: Adds a new sub-service under a given service for the authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManageServiceListingRequestDTO"
+      responses:
+        '200':
+          description: Sub-service successfully added
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        
+  /service/get-subservices/{serviceName}:
+    get:
+      tags: [Service]
+      summary: Get sub-services by service name
+      description: Fetches all sub-services linked to a given service name.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path 
+          name: serviceName
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved sub-services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+          
+  # ================= User APIs =================
+  /users/customers/graphs:
+    get:
+      tags: [Users]
+      summary: Get graph-based overview for customers
+      description: Returns user/customer statistics for admin dashboards (requires ADMIN role).
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Graph data overview
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+
+  /users/customers/table:
+    get:
+      tags: [Users]
+      summary: Get customers table
+      description: Return table-based customer data with filtering, searching, and sorting.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: keyword
+          schema: 
+            type: string
+          description: Search by name, email, or phone
+        - in: query
+          name: startDate
+          schema: 
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema: 
+            type: string
+            format: date
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: id
+      responses:
+        "200":
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponseDTO'
+        "400":
+          $ref: '#/components/responses/BadRequestError'
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+
+  /users/customers/table/block/{userId}:
+    put:
+      tags: [Users]
+      summary: Block a customer
+      description: Marks a customer account as blocked.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Customer blocked successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/customers/table/unblock/{userId}:
+    put:
+      tags: [Users]
+      summary: Unblock a customer
+      description: Removes block status from a customer account.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Customer unblocked successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/customer/table/delete/{userId}:
+    delete:
+      tags: [Users]
+      summary: Delete a customer
+      description: Permanently deletes a customer account.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Customer deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/service-providers/graphs:
+    get:
+      tags: [Users]
+      summary: Get graph-based overview for service providers
+      description: Returns service provider statistics for admin dashboards (requires ADMIN role).
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Graph data overview
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400": 
+          $ref: '#/components/responses/BadRequestError'
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/service-providers/table:
+    get:
+      tags: [Users]
+      summary: Get service providers table
+      description: Return table-based service provider data with filtering, searching, and sorting.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: keyword
+          schema: 
+            type: string
+          description: Search by name, email, or phone
+        - in: query
+          name: startDate
+          schema: 
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema: 
+            type: string
+            format: date
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: id
+      responses:
+        "200":
+          description: List of service providers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceProviderResponseDTO'
+        "400": 
+          $ref: '#/components/responses/BadRequestError'
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/service-providers/table/block/{userId}:
+    put:
+      tags: [Users]
+      summary: Block a service provider
+      description: Marks a service provider account as blocked.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Service provider blocked successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/service-providers/table/unblock/{userId}:
+    put:
+      tags: [Users]
+      summary: Unblock a service provider
+      description: Removes block status from a service provider account.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Service provider unblocked successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401": 
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'
+  
+  /users/service-providers/table/delete/{providerId}:
+    delete:
+      tags: [Users]
+      summary: Delete a service provider
+      description: Permanently deletes a service provider account.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: Service provider deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "403": 
+          $ref: '#/components/responses/ForbiddenError'
+        "404": 
+          $ref: '#/components/responses/NotFoundError'
+        "500": 
+          $ref: '#/components/responses/ServerError'

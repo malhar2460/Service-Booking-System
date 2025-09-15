@@ -5,7 +5,10 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # Copy JAR from Maven build
-COPY target/*.jar app.jar
+COPY backend/target/*.jar app.jar
+
+# copy root .env file into container
+COPY ../.env /app/.env
 
 # Expose the application port
 EXPOSE 8082

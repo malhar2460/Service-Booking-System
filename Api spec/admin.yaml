@@ -19,6 +19,8 @@ tags:
     description: Service managing endpoints for admin
   - name: Users
     description: User reports related endpoints for admin
+  - name: Profile 
+    description: Admin profile related endpoints
 
 components:
   securitySchemes:
@@ -422,6 +424,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PriceDTO'
+
+    # ==== Profile DTOs ====
+    AdminProfileResponseDTO:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDTO'
+
+    AdminEditProfileRequestDTO:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDTO'
+        
+    ChangePasswordRequestDTO:
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+        confirmPassword:
+          type: string
 
   responses:
     BadRequestError:
@@ -1426,3 +1460,86 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         "500": 
           $ref: '#/components/responses/ServerError'
+
+  # ================= Profile APIs =================
+  /profile/view:
+    get:
+      tags: [Profile]
+      summary: Profile details of admin.
+      description: Return profile details of admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved admin profile details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProfileResponseDTO'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profile/edit:
+    put:
+      tags: [Profile]
+      summary: Edit admin profile
+      description: Edit the existing profile details of the authenticated admin.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEditProfileRequestDTO'
+      responses:
+        '200':
+          description: Successfully updated profile
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profile/change-password:
+    put:
+      tags: [Profile]
+      summary: hange admin password
+      description: Updates the password of the authenticated admin.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequestDTO'
+      responses:
+        '200':
+          description: Successfully changed password
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+

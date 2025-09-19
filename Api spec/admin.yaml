@@ -19,6 +19,8 @@ tags:
     description: Service managing endpoints for admin
   - name: Users
     description: User reports related endpoints for admin
+  - name: Configurations
+    description: Configurations settings related endpoints for admin
   - name: Profile 
     description: Admin profile related endpoints
 
@@ -71,6 +73,7 @@ components:
       properties:
         orderId: 
           type: integer
+          format: int64
         date: 
           type: string
           format: date-time
@@ -108,6 +111,7 @@ components:
       properties:
         invoiceNumber: 
           type: integer
+          format: int64
         charge: 
           type: number
           format: double
@@ -126,6 +130,7 @@ components:
       properties:
         paymentId: 
           type: integer
+          format: int64
         transactionId: 
           type: string
         dateTime: 
@@ -137,6 +142,7 @@ components:
       properties:
         payoutId: 
           type: integer
+          format: int64
         service_earning: 
           type: number
           format: double
@@ -184,18 +190,24 @@ components:
       properties:
         providerId: 
           type: integer
+          format: int64
         totalRevenue: 
-          type: integer
+          type: number
+          format: double
         platformCharges: 
-          type: integer
+          type: number
+          format: double
         dateTime: 
           type: string
+          format: date-time
         payoutCount: 
           type: integer
         startDate: 
           type: string
+          format: date-time
         endDate: 
           type: string
+          format: date-time
 
     ServiceProviderRevenueGraphDTO:
       type: object
@@ -226,9 +238,11 @@ components:
       type: object
       properties:
         userId: 
-          type: string
+          type: integer
+          format: int64
         id: 
           type: integer
+          format: int64
         businessName: 
           type: string
         orderCount: 
@@ -256,6 +270,7 @@ components:
       properties:
         userId: 
           type: integer
+          format: int64
         id: 
           type: integer
         businessName: 
@@ -269,6 +284,7 @@ components:
       properties:
         userId: 
           type: integer
+          format: int64
         firstName:
           type: string
         lastName: 
@@ -323,6 +339,7 @@ components:
       properties:
         serviceId: 
           type: string
+          format: int64
         subServiceId: 
           type: string
         price: 
@@ -335,6 +352,7 @@ components:
       properties:
         serviceId: 
           type: integer
+          format: int64
         serviceName: 
           type: string
         count: 
@@ -356,6 +374,7 @@ components:
       properties:
         userId: 
           type: integer
+          format: int64
         firstName: 
           type: string
         lastName: 
@@ -388,6 +407,7 @@ components:
       properties:
         userId: 
           type: integer
+          format: int64
         firstName:
           type: string
         lastName: 
@@ -425,8 +445,51 @@ components:
           items:
             $ref: '#/components/schemas/PriceDTO'
 
+    # ==== Configurations DTOs ====
+    RevenueSettingRequestDTO:
+      type: object
+      properties:
+        serviceProviderRevenue:
+          type: number
+          format: double
+        currentStatus:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+
+    RevenueSettingResponseDTO:
+      type: object
+      properties:
+        serviceProviderRevenue:
+          type: number
+          format: double
+        message:
+          type: string
+
+    RevenueBreakDown:
+      type: object
+      properties:
+        revenueId:
+          type: integer
+          format: int64
+        serviceProvider:
+          type: number
+          format: double
+        currentStatus:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+        createdAt:
+          type: string
+          format: date-time
+        activeAt:
+          type: string
+          format: date-time
+        deactivateAt:
+          type: string
+          format: date-time
+
     # ==== Profile DTOs ====
     AdminProfileResponseDTO:
+      type: object
       properties:
         firstName:
           type: string
@@ -440,6 +503,7 @@ components:
           $ref: '#/components/schemas/AddressDTO'
 
     AdminEditProfileRequestDTO:
+      type: object
       properties:
         firstName:
           type: string
@@ -449,6 +513,7 @@ components:
           $ref: '#/components/schemas/AddressDTO'
         
     ChangePasswordRequestDTO:
+      type: object
       properties:
         oldPassword:
           type: string
@@ -1459,6 +1524,92 @@ paths:
         "404": 
           $ref: '#/components/responses/NotFoundError'
         "500": 
+          $ref: '#/components/responses/ServerError'
+
+  # ================= Configuration APIs =================
+  /configurations/revenue-breakdown:
+    post:
+      tags: [Configurations]
+      summary: Set Revenue Breakdown
+      description: Create or update revenue breakdown settings. Only accessible by Admins.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevenueSettingRequestDTO'
+      responses:
+        '200':
+          description: Revenue setting successfully created/updated
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /configurations/revenue-breakdown/history:
+    get:
+      tags: [Configurations]
+      summary: Get Revenue Breakdown History
+      description: Retrieve the list of all revenue breakdown records. Only accessible by Admins.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of revenue breakdown records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RevenueBreakDown'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /configurations/revenue-breakdown/history/{id}:
+    put:
+      tags: [Configurations]
+      summary: Change Revenue Breakdown Status
+      description: Change the status of a specific revenue breakdown entry by ID. Only accessible by Admins.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of the revenue breakdown record
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401': 
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
           $ref: '#/components/responses/ServerError'
 
   # ================= Profile APIs =================

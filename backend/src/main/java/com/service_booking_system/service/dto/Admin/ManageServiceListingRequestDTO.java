@@ -16,5 +16,7 @@ public class ManageServiceListingRequestDTO {
     @Pattern(regexp = "^[A-Za-z+\\s\\-_()]+$", message = "Service name contains invalid characters.")
     private String serviceName;
 
+    @Size(min = 3, max = 100, message = "Sub Service name must be between 3 and 100 characters.")
+    @Pattern(regexp = "^[A-Za-z+\\s\\-_()]+$", message = "Sub Service name contains invalid characters.")
     private String subServiceName;
 }

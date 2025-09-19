@@ -338,10 +338,11 @@ components:
       type: object
       properties:
         serviceId: 
-          type: string
+          type: integer
           format: int64
         subServiceId: 
-          type: string
+          type: integer
+          format: int64
         price: 
           type: number
           format: double
@@ -367,6 +368,7 @@ components:
           type: string
       required:
         - serviceName
+        - subServiceName
         
     # ==== User DTOs ====
     CustomerResponseDTO:
@@ -408,14 +410,20 @@ components:
         userId: 
           type: integer
           format: int64
+        serviceProviderId:
+          type: integer
+          format: int64
         firstName:
           type: string
         lastName: 
           type: string
-        phoneNo: 
+        phone: 
           type: string
         email: 
           type: string
+        joinedAt:
+          type: string
+          format: date-time
         businessName: 
           type: string
         businessLicenseNumber: 

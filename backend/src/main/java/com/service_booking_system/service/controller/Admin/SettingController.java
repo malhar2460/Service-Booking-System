@@ -29,7 +29,7 @@ public class SettingController {
         long userId = repeatedCode.fetchUserIdFromToken(request);
         Users user = repeatedCode.checkUser(userId);
         repeatedCode.isAdmin(user);
-        return ResponseEntity.ok(settingService.setRevenue(revenueSettingRequestDTO));
+        return ResponseEntity.ok(settingService.setRevenue(revenueSettingRequestDTO, user));
     }
 
     // http://localhost:8080/configurations/revenue-breakdown/history

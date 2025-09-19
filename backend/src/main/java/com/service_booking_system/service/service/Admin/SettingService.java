@@ -4,6 +4,7 @@ import com.service_booking_system.service.dto.Admin.RevenueSettingRequestDTO;
 import com.service_booking_system.service.dto.Admin.RevenueSettingResponseDTO;
 import com.service_booking_system.service.enums.CurrentStatus;
 import com.service_booking_system.service.model.RevenueBreakDown;
+import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.repository.RevenueBreakDownRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class SettingService {
     @Autowired private RevenueBreakDownRepository revenueBreakDownRepository;
 
     // Set revenue breakdown
-    public RevenueSettingResponseDTO setRevenue(RevenueSettingRequestDTO revenueSettingRequestDTO) {
+    public RevenueSettingResponseDTO setRevenue(RevenueSettingRequestDTO revenueSettingRequestDTO, Users user) {
 
         CurrentStatus status = revenueSettingRequestDTO.getCurrentStatus();
         LocalDateTime active = null;
@@ -41,6 +42,7 @@ public class SettingService {
                 .serviceProvider(revenueSettingRequestDTO.getServiceProviderRevenue())
                 .currentStatus(revenueSettingRequestDTO.getCurrentStatus())
                 .activeAt(active)
+                .user(user)
                 .build();
 
         revenueBreakDownRepository.save(revenueBreakDown);

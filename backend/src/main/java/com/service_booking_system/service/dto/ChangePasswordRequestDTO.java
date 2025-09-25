@@ -1,3 +1,5 @@
+// /backend/src/main/java/com/service_booking_system/service/dto/ChangePasswordRequestDTO.java
+
 package com.service_booking_system.service.dto;
 
 import jakarta.validation.constraints.NotBlank;

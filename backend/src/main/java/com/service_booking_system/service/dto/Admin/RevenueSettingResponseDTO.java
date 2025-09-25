@@ -1,3 +1,5 @@
+// /backend/src/main/java/com/service_booking_system/service/dto/Admin/RevenueSettingResponseDTO.java
+
 package com.service_booking_system.service.dto.Admin;
 
 import lombok.AllArgsConstructor;

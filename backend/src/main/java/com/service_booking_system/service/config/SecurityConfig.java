@@ -1,3 +1,5 @@
+// /backend/src/main/java/com/service_booking_system/service/config/SecurityConfig.java
+
 package com.service_booking_system.service.config;
 
 import org.springframework.context.annotation.Bean;

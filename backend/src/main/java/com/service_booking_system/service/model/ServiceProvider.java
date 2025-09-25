@@ -1,3 +1,5 @@
+// /backend/src/main/java/com/service_booking_system/service/model/ServiceProvider.java
+
 package com.service_booking_system.service.model;
 
 import jakarta.persistence.*;

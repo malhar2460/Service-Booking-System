@@ -1,3 +1,4 @@
+// /backend/src/main/java/com/service_booking_system/service/model/AdminRevenue.java
 package com.service_booking_system.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

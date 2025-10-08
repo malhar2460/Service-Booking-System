@@ -51,23 +51,6 @@ components:
           type: number
           format: double
 
-    RevenueBreakdownResponseTableDTO:
-      type: object
-      properties:
-        serviceProviderRevenue: 
-          type: number
-          format: double
-        adminRevenue: 
-          type: number
-          format: double
-
-    RevenueBreakDownResponseGraphDTO:
-      type: object
-      properties:
-        serviceProviderRevenue: 
-          type: number
-          format: double
-
     TotalRevenueDTO:
       type: object
       properties:
@@ -577,74 +560,7 @@ paths:
         "403": 
           $ref: '#/components/responses/ForbiddenError'
         "500": 
-          $ref: '#/components/responses/ServerError'
-              
-
-  /revenue/breakdown/table:
-    get:
-      tags: [Revenue]
-      summary: Get Revenue Breakdown (Table)
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: filter
-          schema: { type: string, default: Overall }
-        - in: query
-          name: startDate
-          schema: { type: string, format: date }
-        - in: query
-          name: endDate
-          schema: { type: string, format: date }
-      responses:
-        "200":
-          description: Revenue breakdown (table format)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RevenueBreakdownResponseTableDTO"
-        "400":
-          $ref: '#/components/responses/BadRequestError'
-        "401":
-          $ref: '#/components/responses/UnauthorizedError'
-        "403":
-          $ref: '#/components/responses/ForbiddenError'
-        "500": 
-          $ref: '#/components/responses/ServerError'
-              
-
-  /revenue/breakdown/graph:
-    get:
-      tags: [Revenue]
-      summary: Get Revenue Breakdown (Graph)
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: filter
-          schema: { type: string, default: Overall }
-        - in: query
-          name: startDate
-          schema: { type: string, format: date }
-        - in: query
-          name: endDate
-          schema: { type: string, format: date }
-      responses:
-        "200":
-          description: Revenue breakdown (graph format)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RevenueBreakDownResponseGraphDTO"
-        "400":
-          $ref: '#/components/responses/BadRequestError'
-        "401":
-          $ref: '#/components/responses/UnauthorizedError'
-        "403":
-          $ref: '#/components/responses/ForbiddenError'
-        "500":
-          $ref: '#/components/responses/ServerError'
-              
+          $ref: '#/components/responses/ServerError' 
 
   /revenue/total-revenue:
     get:

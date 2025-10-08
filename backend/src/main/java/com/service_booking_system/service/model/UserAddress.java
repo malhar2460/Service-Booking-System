@@ -23,6 +23,9 @@ public class UserAddress {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Users user;
 
     @NotBlank(message = "Name is required.")
@@ -42,7 +45,4 @@ public class UserAddress {
     @Pattern(regexp = "^[0-9]{6}$", message = "Pincode must be 6 digits")
     @Column(name = "pincode", nullable = false, length = 6)
     private String pincode;
-
 }
-
-

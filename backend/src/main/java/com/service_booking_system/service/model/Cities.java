@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.apache.catalina.Lifecycle;
 
 @Data
 @AllArgsConstructor
@@ -33,6 +34,9 @@ public class Cities {
     @JoinColumn(name = "state_id", nullable = false)
     private States states;
 
+    public States getState() {
+        return states;
+    }
 }
 
 

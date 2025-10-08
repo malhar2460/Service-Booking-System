@@ -42,13 +42,16 @@ public class Services {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
+
 
     @JsonManagedReference
     @OneToMany(mappedBy = "services", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubServices> subServices = new ArrayList<>();
 
+    @Column(name = "ServicePhoto", nullable = true)
+    private String serviceImage;
 }
 

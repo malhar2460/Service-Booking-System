@@ -93,5 +93,4 @@ public class Orders {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<OrderOtp> orderOtpList;
-
 }

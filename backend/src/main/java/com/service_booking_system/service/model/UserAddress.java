@@ -21,9 +21,17 @@ public class UserAddress {
     @Column(name = "add_id")
     private Long addressId;
 
+//    @OneToOne
+//    @JoinColumn(name = "user_id", nullable = false)
+//    @JsonIgnore
+//    private Users user;
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Users user;
+
 
     @NotBlank(message = "Name is required.")
     @Column(name = "name", nullable = false, length = 100)
@@ -44,5 +52,4 @@ public class UserAddress {
     private String pincode;
 
 }
-
 

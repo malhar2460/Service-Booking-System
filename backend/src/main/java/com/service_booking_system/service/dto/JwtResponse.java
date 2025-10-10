@@ -1,6 +1,5 @@
 package com.service_booking_system.service.dto;
 
-import com.service_booking_system.service.enums.UserRoles;
 import lombok.*;
 
 @Getter

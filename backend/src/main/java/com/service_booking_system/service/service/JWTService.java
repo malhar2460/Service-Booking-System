@@ -1,30 +1,21 @@
 package com.service_booking_system.service.service;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-//@author Hitiksha Jagani
 @Service
 public class JWTService {
 
@@ -34,7 +25,7 @@ public class JWTService {
     public JWTService() {
     }
 
-    public String generateToken(String id, String username) {
+    public String generateToken(Long id, String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
 
@@ -64,10 +55,17 @@ public class JWTService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Object extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("id"));
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> {
+            Object id = claims.get("id");
+            if (id instanceof Number) {
+                return ((Number) id).longValue();  // works for Integer, Long, etc.
+            } else if (id instanceof String) {
+                return Long.parseLong((String) id);
+            }
+            throw new IllegalArgumentException("Invalid ID type in JWT: " + id);
+        });
     }
-
 
     public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
         final Claims claims = extractAllClaims(token);

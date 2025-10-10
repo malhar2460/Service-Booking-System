@@ -2,9 +2,11 @@
 
 package com.service_booking_system.service.model;
 
+import com.service_booking_system.service.enums.Status;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,11 @@ public class ServiceProvider {
 
     @Column(name = "ifsc_code", nullable = false)
     private String ifscCode;
+
+    @NotNull(message = "Status is required.")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.PENDING;
 
     @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

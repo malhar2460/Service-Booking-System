@@ -25,12 +25,10 @@ public interface UserRepository extends JpaRepository<Users, Long>, JpaSpecifica
 
     Optional<Users> findByPhoneNo(String phone);
 
-    List<Users> findAllByOrderByUserIdAsc();
-
+    boolean existsByRole(UserRoles admin);
 
     long countByRoleAndCreatedAtBetween(UserRoles role, LocalDateTime start, LocalDateTime end);
 
-    boolean existsByRole(UserRoles admin);
     @Query("""
         SELECT ua.city.cityName, COUNT(u.userId)
         FROM Users u

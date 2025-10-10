@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface SubServiceRepository extends JpaRepository<SubServices, Long> {
+
+
     long countByServices(Services service);
 
     List<SubServices> findByServices(Services service);

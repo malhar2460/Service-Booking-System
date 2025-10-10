@@ -7,6 +7,7 @@ import com.service_booking_system.service.model.Cities;
 import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.repository.CityRepository;
 import com.service_booking_system.service.repository.UserRepository;
+import com.service_booking_system.service.service.JWTService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.nio.file.AccessDeniedException;
 @Service
 public class RepeatedCode {
 
-//    @Autowired private JWTService jwtService;
+    @Autowired private JWTService jwtService;
 
     @Autowired private UserRepository userRepository;
 
@@ -28,8 +29,7 @@ public class RepeatedCode {
     private static final Logger logger = LoggerFactory.getLogger(RepeatedCode.class);
 
     public long fetchUserIdFromToken(HttpServletRequest request) {
-//        return (String) jwtService.extractUserId(jwtService.extractTokenFromHeader(request));
-        return 1;
+        return jwtService.extractUserId(jwtService.extractTokenFromHeader(request));
     }
 
     // Check user exist or not and if exist then return user

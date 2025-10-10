@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -70,7 +69,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
-        String token = jwtService.generateToken(String.valueOf(user.getUserId()), user.getEmail());
+        String token = jwtService.generateToken(user.getUserId(), user.getEmail());
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
                 .username(username)

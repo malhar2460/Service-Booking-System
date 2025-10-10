@@ -1,6 +1,5 @@
 package com.service_booking_system.service.Exception;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

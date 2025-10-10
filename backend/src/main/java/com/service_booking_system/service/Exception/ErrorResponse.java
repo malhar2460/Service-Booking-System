@@ -1,6 +1,5 @@
 package com.service_booking_system.service.Exception;
 
-
 import lombok.*;
 
 // Store error related data

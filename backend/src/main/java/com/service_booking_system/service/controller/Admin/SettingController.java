@@ -4,6 +4,8 @@ package com.service_booking_system.service.controller.Admin;
 
 import com.service_booking_system.service.dto.Admin.RevenueSettingRequestDTO;
 import com.service_booking_system.service.dto.Admin.RevenueSettingResponseDTO;
+import com.service_booking_system.service.dto.CityDTO;
+import com.service_booking_system.service.dto.StateDTO;
 import com.service_booking_system.service.model.RevenueBreakDown;
 import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.service.Admin.SettingService;
@@ -54,4 +56,23 @@ public class SettingController {
         return ResponseEntity.ok(settingService.changeRevenueBreakdownStatus(id));
     }
 
+    // http://localhost:8080/configurations/add-state
+    // Add new state data
+    @PostMapping("/add-state")
+    public ResponseEntity<String> addState(HttpServletRequest request, @RequestBody @Valid StateDTO stateDTO) throws AccessDeniedException {
+        long userId = repeatedCode.fetchUserIdFromToken(request);
+        Users user = repeatedCode.checkUser(userId);
+        repeatedCode.isAdmin(user);
+        return ResponseEntity.ok(settingService.addState(stateDTO));
+    }
+
+    // http://localhost:8080/configurations/add-city
+    // Add new state data
+    @PostMapping("/add-city")
+    public ResponseEntity<String> addCity(HttpServletRequest request, @RequestBody @Valid CityDTO cityDTO) throws AccessDeniedException {
+        long userId = repeatedCode.fetchUserIdFromToken(request);
+        Users user = repeatedCode.checkUser(userId);
+        repeatedCode.isAdmin(user);
+        return ResponseEntity.ok(settingService.addCity(cityDTO));
+    }
 }

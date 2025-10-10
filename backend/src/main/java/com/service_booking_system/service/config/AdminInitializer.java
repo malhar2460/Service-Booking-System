@@ -34,7 +34,7 @@ public class AdminInitializer {
             admin.setEmail("admin@example.com");
             admin.setPhoneNo("9999999999");
             admin.setRole(UserRoles.ADMIN);
-            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setPassword(passwordEncoder.encode("Admin@123"));
             admin.setCreatedAt(LocalDateTime.now());
             admin.setBlocked(false);
 

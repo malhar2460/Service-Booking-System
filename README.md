@@ -33,4 +33,4 @@ Service Booking System lets customers book home services (e.g., cleaning). Booki
 *When you set up this project for the first time and run it, a dummy admin account is created with the following credentials:
 - Email: admin@example.com
 - Phone: 9999999999
-- Password: admin123
+- Password: Admin@123

@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/register","/login","/verify-otp","/resend-otp","/services/**","/subservices/**")
+                                .requestMatchers("/register","/login","/verify-otp","/resend-otp","/services/**","/subservices/**",
+                                        "/cities/**", "/states")
                                 .permitAll()
                                 .anyRequest().authenticated()
                 )

@@ -4,10 +4,18 @@ package com.service_booking_system.service.service.Admin;
 
 import com.service_booking_system.service.dto.Admin.RevenueSettingRequestDTO;
 import com.service_booking_system.service.dto.Admin.RevenueSettingResponseDTO;
+import com.service_booking_system.service.dto.CityDTO;
+import com.service_booking_system.service.dto.StateDTO;
 import com.service_booking_system.service.enums.CurrentStatus;
+import com.service_booking_system.service.model.Cities;
 import com.service_booking_system.service.model.RevenueBreakDown;
+import com.service_booking_system.service.model.States;
 import com.service_booking_system.service.model.Users;
+import com.service_booking_system.service.repository.CityRepository;
 import com.service_booking_system.service.repository.RevenueBreakDownRepository;
+import com.service_booking_system.service.repository.StatesRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +26,12 @@ import java.util.List;
 public class SettingService {
 
     @Autowired private RevenueBreakDownRepository revenueBreakDownRepository;
+
+    @Autowired private StatesRepository statesRepository;
+
+    @Autowired private CityRepository cityRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(SettingService.class);
 
     // Set revenue breakdown
     public RevenueSettingResponseDTO setRevenue(RevenueSettingRequestDTO revenueSettingRequestDTO, Users user) {
@@ -49,6 +63,7 @@ public class SettingService {
 
         revenueBreakDownRepository.save(revenueBreakDown);
 
+        logger.info("Revenue is set as Service Provider : {} %",  revenueSettingRequestDTO.getServiceProviderRevenue());
         return new RevenueSettingResponseDTO(revenueSettingRequestDTO.getServiceProviderRevenue(),
                 "Revenue is set as Service Provider : " + revenueSettingRequestDTO.getServiceProviderRevenue() + "%");
 
@@ -72,8 +87,40 @@ public class SettingService {
 
         revenueBreakDownRepository.save(revenueBreakDown);
 
+        logger.info("Status of {} is changed successfull.", revenueBreakDown.getRevenueId());
         return "Status of " + revenueBreakDown.getRevenueId() + "is changed successfully.";
     }
 
+    public String addState(StateDTO stateDTO) {
+
+        States state = States.builder()
+                .stateName(stateDTO.getStateName())
+                .build();
+
+        statesRepository.save(state);
+
+        logger.info("State : {} added successfully", stateDTO.getStateName());
+        return "State : " + stateDTO.getStateName() + " added successfully";
+    }
+
+    public String addCity(CityDTO cityDTO) {
+
+        States state = statesRepository.findByStateName(cityDTO.getStateName());
+
+        if(state == null) {
+            logger.error("State not exist");
+            throw new IllegalArgumentException("State not exist");
+        }
+
+        Cities city = Cities.builder()
+                .cityName(cityDTO.getCityName())
+                .states(state)
+                .build();
+
+        cityRepository.save(city);
+
+        logger.info("City : {} added successfully", cityDTO.getCityName());
+        return "City : " + cityDTO.getCityName() + " added successfully";
+    }
 }
 

@@ -47,7 +47,7 @@ public class SettingController {
     }
 
     // http://localhost:8080/configurations/revenue-breakdown/history/{id}
-    // Change status of revenue breakdown
+    // Toggle status of revenue breakdown. If current is ACTIVE then set to INACTIVE and vice versa.
     @PutMapping("/revenue-breakdown/history/{id}")
     public ResponseEntity<String> changeRevenueBreakdownStatus(HttpServletRequest request, @PathVariable Long id) throws AccessDeniedException {
         long userId = repeatedCode.fetchUserIdFromToken(request);

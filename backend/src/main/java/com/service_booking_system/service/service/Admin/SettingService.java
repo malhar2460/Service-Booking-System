@@ -87,8 +87,8 @@ public class SettingService {
 
         revenueBreakDownRepository.save(revenueBreakDown);
 
-        logger.info("Status of {} is changed successfull.", revenueBreakDown.getRevenueId());
-        return "Status of " + revenueBreakDown.getRevenueId() + "is changed successfully.";
+        logger.info("Status of {} is set to {} successfully.", revenueBreakDown.getRevenueId(), revenueBreakDown.getCurrentStatus());
+        return "Status of " + revenueBreakDown.getRevenueId() + " is set to" + revenueBreakDown.getCurrentStatus() + "  successfully.";
     }
 
     public String addState(StateDTO stateDTO) {

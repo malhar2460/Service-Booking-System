@@ -2,6 +2,7 @@
 
 package com.service_booking_system.service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.service_booking_system.service.enums.CurrentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,7 @@ public class RevenueBreakDown {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private Users user;
 }
 

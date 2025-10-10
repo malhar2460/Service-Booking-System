@@ -77,7 +77,7 @@ public class Orders {
     private OrderStatus status = OrderStatus.PENDING;
 
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "price_id", nullable = false)
     private Prices price;
 

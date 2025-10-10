@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface BillRepository extends JpaRepository<Bill, Long> {
 
@@ -17,4 +18,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     Double getGrossSalesBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     Bill findByOrder(Orders order);
+    Optional<Bill> findByOrder_OrderId(Long orderId);
+
 }

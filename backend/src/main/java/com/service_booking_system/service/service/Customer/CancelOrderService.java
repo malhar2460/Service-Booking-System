@@ -1,10 +1,9 @@
-package com.service_booking_system.service.service.Admin;
+package com.service_booking_system.service.service.Customer;
 
 import com.service_booking_system.service.enums.OrderStatus;
 import com.service_booking_system.service.model.Orders;
 import com.service_booking_system.service.model.ServiceProvider;
 import com.service_booking_system.service.repository.OrderRepository;
-import com.service_booking_system.service.service.Customer.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

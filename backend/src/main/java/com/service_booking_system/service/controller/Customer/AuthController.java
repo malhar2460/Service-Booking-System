@@ -1,5 +1,4 @@
 package com.service_booking_system.service.controller.Customer;
-
 import com.service_booking_system.service.dto.*;
 import com.service_booking_system.service.dto.Customer.OtpVerificationRequest;
 import com.service_booking_system.service.model.Users;
@@ -16,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
-
 import java.util.Optional;
-
 @RestController
 @RequestMapping("")
 public class AuthController {
@@ -107,11 +104,11 @@ public class AuthController {
             Authentication authentication,
             @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO
     ) throws Exception {
-        // Get logged-in user details (from JWT)
         String email = authentication.getName();
         Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found."));
         String response = changePasswordService.changePassword(user.getUserId(), changePasswordRequestDTO);
         return ResponseEntity.ok(response);
     }
+
 }

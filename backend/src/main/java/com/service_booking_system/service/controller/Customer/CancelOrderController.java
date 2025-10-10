@@ -2,7 +2,7 @@ package com.service_booking_system.service.controller.Customer;
 
 import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.repository.UserRepository;
-import com.service_booking_system.service.service.Admin.CancelOrderService;
+import com.service_booking_system.service.service.Customer.CancelOrderService;
 import com.service_booking_system.service.service.Customer.OrderService;
 import com.service_booking_system.service.service.JWTService;
 import jakarta.servlet.http.HttpServletRequest;

@@ -46,11 +46,12 @@ public class Services {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
+    @Column(name = "ServicePhoto", nullable = true)
+    private String serviceImage;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "services", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubServices> subServices = new ArrayList<>();
 
-    @Column(name = "ServicePhoto", nullable = true)
-    private String serviceImage;
 }
 

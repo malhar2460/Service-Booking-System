@@ -82,6 +82,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<!-- JSON & JWT -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

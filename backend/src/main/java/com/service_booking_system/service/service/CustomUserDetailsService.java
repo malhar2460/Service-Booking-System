@@ -1,6 +1,5 @@
 package com.service_booking_system.service.service;
 
-
 import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.model.UserPrincipal;
 import com.service_booking_system.service.repository.UserRepository;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-//@author Hitiksha Jagani
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 

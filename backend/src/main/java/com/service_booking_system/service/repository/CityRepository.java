@@ -12,7 +12,4 @@ public interface CityRepository extends JpaRepository<Cities, Long> {
 
     Optional<Cities> findByCityName(String cityName);
 
-    List<Cities> findByStates_StateId(Long stateId);
-
-    List<Cities> findByStates_StateName(String stateName);
 }

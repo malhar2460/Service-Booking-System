@@ -296,7 +296,7 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword())
             );
 
-            String token = jwtService.generateToken(String.valueOf(user.getUserId()), user.getEmail());
+            String token = jwtService.generateToken(user.getUserId(), user.getEmail());
             JwtResponse response = JwtResponse.builder()
                     .jwtToken(token)
                     .username(user.getEmail())

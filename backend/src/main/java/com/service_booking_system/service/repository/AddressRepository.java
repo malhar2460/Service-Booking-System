@@ -8,5 +8,4 @@ import java.util.Optional;
 
 public interface AddressRepository extends JpaRepository<UserAddress, Long> {
     Optional<UserAddress> findByUser(Users user);
-
 }

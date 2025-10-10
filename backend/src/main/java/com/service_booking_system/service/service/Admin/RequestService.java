@@ -133,7 +133,6 @@ public class RequestService {
         return "Service provider profile approved successfully.";
     }
 
-    //@author Hitiksha Jagani
     // Logic for reject service provider request
     @Transactional
     public String rejectProvider(Long userId){

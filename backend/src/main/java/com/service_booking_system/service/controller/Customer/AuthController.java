@@ -1,12 +1,10 @@
 package com.service_booking_system.service.controller.Customer;
 
+import com.service_booking_system.service.dto.*;
 import com.service_booking_system.service.dto.Customer.OtpVerificationRequest;
-import com.service_booking_system.service.dto.JwtRequest;
-import com.service_booking_system.service.dto.JwtResponse;
-import com.service_booking_system.service.dto.RegistrationRequestDTO;
-import com.service_booking_system.service.dto.RegistrationResponseDTO;
 import com.service_booking_system.service.model.Users;
 import com.service_booking_system.service.repository.UserRepository;
+import com.service_booking_system.service.service.ChangePasswordService;
 import com.service_booking_system.service.service.Customer.AuthService;
 import com.service_booking_system.service.service.Customer.EmailService;
 import com.service_booking_system.service.service.Customer.OTPService;
@@ -17,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
 
@@ -38,7 +37,8 @@ public class AuthController {
 
     @Autowired
     private JWTService jwtService;
-
+    @Autowired
+    private ChangePasswordService changePasswordService;
     //  Registration
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponseDTO> register(@Valid @RequestBody RegistrationRequestDTO request) {
@@ -99,5 +99,19 @@ public class AuthController {
             emailService.sendOtp(user.getEmail(), otp);
         }
         return ResponseEntity.ok("OTP resent.");
+    }
+
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            Authentication authentication,
+            @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO
+    ) throws Exception {
+        // Get logged-in user details (from JWT)
+        String email = authentication.getName();
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+        String response = changePasswordService.changePassword(user.getUserId(), changePasswordRequestDTO);
+        return ResponseEntity.ok(response);
     }
 }

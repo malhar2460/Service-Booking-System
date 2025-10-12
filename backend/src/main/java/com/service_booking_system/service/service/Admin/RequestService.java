@@ -11,6 +11,9 @@ import com.service_booking_system.service.repository.PriceRepository;
 import com.service_booking_system.service.repository.ServiceProviderRepository;
 import com.service_booking_system.service.repository.UserAddressRepository;
 import com.service_booking_system.service.repository.UserRepository;
+import com.service_booking_system.service.service.Customer.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,10 @@ public class RequestService {
     @Autowired private PriceRepository priceRepository;
 
     @Autowired private RepeatedCode repeatedCode;
+
+    @Autowired private EmailService emailService;
+
+    private final static Logger logger = LoggerFactory.getLogger(RequestService.class);
 
     // Return all service provider data which are pending for approval.
     @Transactional
@@ -84,6 +91,7 @@ public class RequestService {
                     .lastName(user.getLastName())
                     .phone(user.getPhoneNo())
                     .email(user.getEmail())
+                    .joinedAt(user.getCreatedAt())
                     .businessName(provider.getBusinessName())
                     .businessLicenseNumber(provider.getBusinessLicenseNumber())
                     .gstNumber(provider.getGstNumber())
@@ -116,10 +124,15 @@ public class RequestService {
 
         ServiceProvider serviceProvider = serviceProviderRepository.findByUser(user);
         if(serviceProvider == null){
+            logger.info("Service provider is not found.");
             return "Service provider is not found.";
         }
 
-        if(serviceProvider.getStatus() != Status.PENDING){
+        if(serviceProvider.getStatus() == Status.REJECTED){
+            logger.info("Request for Service provider profile already rejected");
+            return "Request for Service provider profile already rejected";
+        } else if (serviceProvider.getStatus() == Status.ACCEPTED) {
+            logger.info("Request for Service provider profile already accepted");
             return "Request for Service provider profile already accepted";
         } else {
             serviceProvider.setStatus(Status.ACCEPTED);
@@ -128,8 +141,9 @@ public class RequestService {
         String message = "Congratulations! Your request to become a Service Provider has been approved.";
         String subject = "Service Provider Approval";
 
-//        emailService.sendOrderStatusNotification(email, subject, message);
+        emailService.sendOrderStatusNotification(email, subject, message);
 
+        logger.info("Service provider profile approved successfully.");
         return "Service provider profile approved successfully.";
     }
 
@@ -143,8 +157,15 @@ public class RequestService {
 
         ServiceProvider serviceProvider = serviceProviderRepository.findByUser(user);
 
-        if(serviceProvider.getStatus() != Status.REJECTED){
+        if(serviceProvider.getStatus() == Status.REJECTED){
+            logger.info("Request for service provider profile already rejected.");
             return "Request for service provider profile already rejected.";
+        } else if(serviceProvider.getStatus() == Status.PENDING) {
+            logger.info("Request for service provider profile not accepted yet.");
+            return "Request for service provider profile not accepted yet.";
+        } else if (serviceProvider.getStatus() == Status.ACCEPTED) {
+            logger.info("Request for Service provider profile already accepted");
+            return "Request for Service provider profile already accepted";
         } else {
             serviceProvider.setStatus(Status.REJECTED);
         }
@@ -153,8 +174,9 @@ public class RequestService {
         String message = "We're sorry! Your request to become a Service Provider has been rejected.";
         String subject = "Service Provider Rejection";
 
-//        emailService.sendOrderStatusNotification(email, subject, message);
+        emailService.sendOrderStatusNotification(email, subject, message);
 
+        logger.info("Service provider profile rejected.");
         return "Service provider profile rejected.";
 
     }

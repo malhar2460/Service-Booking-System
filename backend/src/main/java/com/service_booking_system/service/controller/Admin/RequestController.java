@@ -20,7 +20,7 @@ public class RequestController {
 
     @Autowired private RepeatedCode repeatedCode;
 
-    // http://localhost:8080/provider-requests
+    // http://localhost:8080/request/provider-requests
     // Return all the pending requests of service provider.
     @GetMapping("/provider-requests")
     public ResponseEntity<List<ServiceProviderRequestDTO>> getAllPendingProvidersProfiles(HttpServletRequest request) throws AccessDeniedException {
@@ -31,9 +31,9 @@ public class RequestController {
         return ResponseEntity.ok(profiles);
     }
 
-    // http://localhost:8080/accept-provider/{userId}
+    // http://localhost:8080/request/accept-provider/{userId}
     // Accpet service provider request.
-    @PostMapping("/accept-provider/{userId}")
+    @PutMapping("/accept-provider/{userId}")
     public ResponseEntity<String> acceptProviderRequest(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
         long adminId = repeatedCode.fetchUserIdFromToken(request);
         Users user = repeatedCode.checkUser(adminId);
@@ -48,9 +48,9 @@ public class RequestController {
         }
     }
 
-    // http://localhost:8080/reject-provider/{userId}
+    // http://localhost:8080/request/reject-provider/{userId}
     // Reject service provider request.
-    @PostMapping("/reject-provider/{userId}")
+    @PutMapping("/reject-provider/{userId}")
     public ResponseEntity<String> rejectProviderRequest(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
         long adminId = repeatedCode.fetchUserIdFromToken(request);
         Users user = repeatedCode.checkUser(adminId);

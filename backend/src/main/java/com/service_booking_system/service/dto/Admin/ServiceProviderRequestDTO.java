@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class ServiceProviderRequestDTO {
     private Long userId;
-    private Long serviceProviderId;
     private String firstName;
     private String lastName;
     private String phone;
@@ -23,7 +22,6 @@ public class ServiceProviderRequestDTO {
     private String businessName;
     private String businessLicenseNumber;
     private String gstNumber;
-    private Boolean needOfDeliveryAgent;
     private String profilePhoto;
     private String aadharCardPhoto;
     private String panCardPhoto;
@@ -53,8 +51,9 @@ public class ServiceProviderRequestDTO {
     @Builder
     public static class priceDTO {
         private String serviceName;
-        private double amount;
         private String subServiceName;
+        private double amount;
     }
 }
+
 

@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/revenue/")
+@RequestMapping("/revenue")
 public class RevenueController {
 
     @Autowired private RevenueService revenueService;
@@ -22,7 +22,9 @@ public class RevenueController {
     @Autowired private RepeatedCode repeatedCode;
 
     // http://localhost:8080/revenue/summary
-    // Return count of Total revenue, total orders, gross sales, service providers payouts, delivery agents payouts, average order value.
+    // Return count of Total revenue, total orders, gross sales, service providers payouts, average order value.
+    // Filter can use. Available filter values are today, this week, this month, custom(provide start and end date), overall(this year data)
+    // Start and end date can be used to return revenue data. We can specify only one of them or both of them.
     @GetMapping("/summary")
     public ResponseEntity<RevenueResponseDTO> getRevenueSummary(
             HttpServletRequest request,
@@ -37,6 +39,8 @@ public class RevenueController {
 
     // http://localhost:8080/revenue/total-revenue
     // Return order details with revenue.
+    // Filter can use. Available filter values are today, this week, this month, custom(provide start and end date), overall(this year data)
+    // Start and end date can be used to return revenue data. We can specify only one of them or both of them.
     @GetMapping("/total-revenue")
     public ResponseEntity<List<TotalRevenueDTO>> getTotalRevenue(
             HttpServletRequest request,
@@ -49,7 +53,7 @@ public class RevenueController {
         return ResponseEntity.ok(revenueService.getTotalRevenue(filter, startDate, endDate));
     }
 
-    // http://localhost:8080/revenue/total-revenue/{orderId}}
+    // http://localhost:8080/revenue/total-revenue/{orderId}
     // Return order details with revenue.
     @GetMapping("/total-revenue/{orderId}")
     public ResponseEntity<OrderResponseDTO> getOrderDetail(
@@ -62,7 +66,7 @@ public class RevenueController {
     }
 
     // http://localhost:8080/revenue/trends
-    // Return graph for revenue trends for admin, gross sales, total payouts, delivery agent payouts or service provider payouts
+    // Return graph for revenue trends for admin, gross sales, total payouts, service provider payouts
     // based on filter monthly, quarterly, yearly
     @GetMapping("/trends")
     public ResponseEntity<RevenueTrendDTO> getRevenueTrendsGraph(HttpServletRequest request,
@@ -75,7 +79,7 @@ public class RevenueController {
     }
 
     // http://localhost:8080/revenue/provider-analytics-list
-    // Return revenue analytics list of service providers
+    // Return revenue analytics list of service providers based on filter monthly, quarterly and yearly
     @GetMapping("/provider-analytics-list")
     public ResponseEntity<List<ServiceProviderRevenueTableDTO>> getServiceProviderRevenueTable(
             HttpServletRequest request,

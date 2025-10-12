@@ -107,13 +107,13 @@ public class AdminUserService {
 
         // Apply date filter only if either is not null
         if (startDate != null || endDate != null) {
-            if (startDate == null) startDate = LocalDate.of(2025, 5, 1);
+            if (startDate == null) startDate = LocalDate.of(2025, 1, 1);
             if (endDate == null) endDate = LocalDate.now();
             spec = addSpec(spec, UserSpecification.joinDateBetween(startDate, endDate));
         }
 
         // Default sort by userId
-        Sort sort = "joinDate".equalsIgnoreCase(sortBy)
+        Sort sort = "joining date".equalsIgnoreCase(sortBy)
                 ? Sort.by(Sort.Direction.ASC, "createdAt")
                 : Sort.by(Sort.Direction.ASC, "userId");
 
@@ -169,12 +169,12 @@ public class AdminUserService {
 
         // Apply date filter only if either is not null
         if (startDate != null || endDate != null) {
-            if (startDate == null) startDate = LocalDate.of(2025, 5, 1);
+            if (startDate == null) startDate = LocalDate.of(2025, 1, 1);
             if (endDate == null) endDate = LocalDate.now();
             spec = addSpec(spec, UserSpecification.joinDateBetween(startDate, endDate));
         }
 
-        Sort sort = "joinDate".equalsIgnoreCase(sortBy)
+        Sort sort = "joining date".equalsIgnoreCase(sortBy)
                 ? Sort.by(Sort.Direction.ASC, "createdAt")
                 : Sort.by(Sort.Direction.ASC, "userId");
 
@@ -185,6 +185,7 @@ public class AdminUserService {
 
     @Transactional
     private ServiceProviderResponseDTO mapToServiceProviderDTO(Users user) {
+
         ServiceProviderResponseDTO dto = new ServiceProviderResponseDTO();
         dto.setUserId(user.getUserId());
         dto.setFirstName(user.getFirstName());
@@ -192,24 +193,6 @@ public class AdminUserService {
         dto.setPhone(user.getPhoneNo());
         dto.setEmail(user.getEmail());
         dto.setJoinedAt(user.getCreatedAt());
-
-        ServiceProvider serviceProvider = serviceProviderRepository.getByUser(user)
-                .orElse(null);
-        if (serviceProvider == null) {
-            return null;
-        }
-
-        List<Prices> prices = priceRepository.findByServiceProvider(serviceProvider);
-
-        List<ServiceProviderResponseDTO.priceDTO> priceDTOs = prices.stream()
-                .map(price -> {
-                    ServiceProviderResponseDTO.priceDTO pdto = new ServiceProviderResponseDTO.priceDTO();
-                    pdto.setServiceId(price.getSubServices().getServices().getServiceId());
-                    pdto.setPrice(price.getAmount());
-                    pdto.setServiceProviderId(price.getServiceProvider().getServiceProviderId());
-                    return pdto;
-                })
-                .collect(Collectors.toList());
 
         UserAddress userAddresses = userAddressRepository.findByUser(user);
 
@@ -220,41 +203,76 @@ public class AdminUserService {
                 .cityName(userAddresses.getCity().getCityName())
                 .build();
 
-        dto.setServiceProviderId(serviceProvider.getServiceProviderId());
-        dto.setBusinessName(serviceProvider.getBusinessName());
-        dto.setBusinessLicenseNumber(serviceProvider.getBusinessLicenseNumber());
-        dto.setGstNumber(serviceProvider.getGstNumber());
-        dto.setBankName(serviceProvider.getBankName());
-        dto.setBankAccountNumber(serviceProvider.getBankAccountNumber());
-        dto.setAccountHolderName(serviceProvider.getAccountHolderName());
-        dto.setIfscCode(serviceProvider.getIfscCode());
-        dto.setAadharCardPhoto(serviceProvider.getAadharCardImage() != null ? "/image/provider/aadhar/" + user.getUserId() : null);
-        dto.setProfilePhoto(serviceProvider.getProfileImage() != null ? "/image/provider/profile/" + user.getUserId() : null);
-        dto.setPanCardPhoto(serviceProvider.getPanCardImage() != null ? "/image/provider/pan/" + user.getUserId() : null);
-        dto.setBusinessUtilityBillPhoto(serviceProvider.getBusinessUtilityBillImage() != null ? "/image/provider/utilitybill/" + user.getUserId() : null);
-        dto.setPriceDTO(priceDTOs);
         dto.setAddresses(addressDTO);
+
+        ServiceProvider serviceProvider = serviceProviderRepository.getByUser(user)
+                .orElse(null);
+
+        if (serviceProvider == null) {
+            dto.setServiceProviderId(null);
+            dto.setBusinessName(null);
+            dto.setBusinessLicenseNumber(null);
+            dto.setGstNumber(null);
+            dto.setBankName(null);
+            dto.setBankAccountNumber(null);
+            dto.setAccountHolderName(null);
+            dto.setIfscCode(null);
+            dto.setAadharCardPhoto(null);
+            dto.setProfilePhoto(null);
+            dto.setPanCardPhoto(null);
+            dto.setBusinessUtilityBillPhoto(null);
+            dto.setPriceDTO(null);
+        } else {
+            List<Prices> prices = priceRepository.findByServiceProvider(serviceProvider);
+
+            List<ServiceProviderResponseDTO.priceDTO> priceDTOs = prices.stream()
+                    .map(price -> {
+                        ServiceProviderResponseDTO.priceDTO pdto = new ServiceProviderResponseDTO.priceDTO();
+                        pdto.setServiceName(price.getSubServices().getServices().getServiceName());
+                        pdto.setSubServiceName(price.getSubServices().getSubServiceName());
+                        pdto.setPrice(price.getAmount());
+                        return pdto;
+                    })
+                    .toList();
+
+            dto.setServiceProviderId(serviceProvider.getServiceProviderId());
+            dto.setBusinessName(serviceProvider.getBusinessName());
+            dto.setBusinessLicenseNumber(serviceProvider.getBusinessLicenseNumber());
+            dto.setGstNumber(serviceProvider.getGstNumber());
+            dto.setBankName(serviceProvider.getBankName());
+            dto.setBankAccountNumber(serviceProvider.getBankAccountNumber());
+            dto.setAccountHolderName(serviceProvider.getAccountHolderName());
+            dto.setIfscCode(serviceProvider.getIfscCode());
+            dto.setAadharCardPhoto(serviceProvider.getAadharCardImage());
+            dto.setProfilePhoto(serviceProvider.getProfileImage());
+            dto.setPanCardPhoto(serviceProvider.getPanCardImage());
+            dto.setBusinessUtilityBillPhoto(serviceProvider.getBusinessUtilityBillImage());
+            dto.setPriceDTO(priceDTOs);
+        }
 
         return dto;
     }
 
-    public void toggleUserBlockStatus(Long userId, boolean block) {
+    public String toggleUserBlockStatus(Long userId) {
 
         Users user = repeatedCode.checkUser(userId);
 
         boolean blockStatus = user.isBlocked();
 
-        if(blockStatus == block) {
-            if(blockStatus == true) {
-                throw new RuntimeException("User already blocked");
-            } else {
-                throw new RuntimeException("User already unblocked");
-            }
+        StringBuilder msg = new StringBuilder();
+
+        if(blockStatus) {
+            user.setBlocked(false);
+            msg.append("Users status changed from block to unblock.");
+            logger.info("Users status changed from block to unblock.");
+        } else {
+            user.setBlocked(true);
+            msg.append("Users status changed from unblock to block.");
+            logger.info("Users status changed from unblock to block.");
         }
 
-        user.setBlocked(block);
         userRepository.save(user);
-
+        return msg.toString();
     }
 
     public void deleteCustomer(Long userId) {
@@ -265,7 +283,17 @@ public class AdminUserService {
             throw new AccessDeniedException("Cannot delete an admin user.");
         }
 
-        userRepository.delete(user);
+        UserAddress userAddress = userAddressRepository.findByUser(user);
+
+        if(user != null) {
+            if(userAddress != null) {
+                userAddressRepository.delete(userAddress);
+            }
+
+            userRepository.delete(user);
+        }
+
+        logger.info("Customer deleted successfully");
     }
 
     public void deleteServiceProvider(Long providerId) {
@@ -275,11 +303,21 @@ public class AdminUserService {
 
         Users user = userRepository.findById(serviceProvider.getUser().getUserId()).orElse(null);
 
-        serviceProviderRepository.delete(serviceProvider);
-        userRepository.delete(user);
+        UserAddress userAddress = userAddressRepository.findByUser(user);
+
+        if(serviceProvider != null) {
+            serviceProviderRepository.delete(serviceProvider);
+
+            if(user != null) {
+                if(userAddress != null) {
+                    userAddressRepository.delete(userAddress);
+                }
+
+                userRepository.delete(user);
+            }
+        }
+
+        logger.info("Service provider deleted successfully");
     }
-
-
-
 }
 

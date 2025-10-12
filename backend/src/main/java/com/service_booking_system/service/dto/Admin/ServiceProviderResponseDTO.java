@@ -28,7 +28,6 @@ public class ServiceProviderResponseDTO {
     private String businessName;
     private String businessLicenseNumber;
     private String gstNumber;
-    private Boolean needOfDeliveryAgent;
     private String profilePhoto;
     private String aadharCardPhoto;
     private String panCardPhoto;
@@ -57,8 +56,9 @@ public class ServiceProviderResponseDTO {
     @AllArgsConstructor
     @Builder
     public static class priceDTO {
-        private Long serviceId;
+        private String serviceName;
+        private String subServiceName;
         private double price;
-        private Long serviceProviderId;
     }
 }
+

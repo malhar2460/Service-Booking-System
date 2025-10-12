@@ -25,8 +25,10 @@ public class AdminUserController {
 
     @Autowired private RepeatedCode repeatedCode;
 
-    // http://localhost:8080/users/customer/graphs
-    // Return graph based overview of customers.
+    // http://localhost:8080/users/customers/graphs
+    // Return graph based overview of customers. Four type of graph data is return
+    // a. customer growth based on months b. customer growth in current month
+    // c. customer growth in last 5 year d. how many customers are from each city
     @GetMapping("/customers/graphs")
     public ResponseEntity<?> getGraphBasedOverviewForCustomers(HttpServletRequest request) throws AccessDeniedException {
         long userId = repeatedCode.fetchUserIdFromToken(request);
@@ -37,6 +39,10 @@ public class AdminUserController {
 
     // http://localhost:8080/users/customers/table
     // Return table based data of customers based on searches or filter.
+    // Return default data if filter not provided.(start date is 2025-01-01 and end date is current date and sort by user id)
+    // Keywords can be used to search for particular customer either we can specify email id or phone no of cutomer to search.
+    // Start and end date can be used to return customers joned between that date. We can specify only one of them or both of them.
+    // We can also apply sort by filter along with date filter which can allow either sorting based on joinDate or user id.
     @GetMapping("/customers/table")
     public ResponseEntity<List<CustomerResponseDTO>> getAllCustomers(
             HttpServletRequest request,
@@ -52,26 +58,14 @@ public class AdminUserController {
         return ResponseEntity.ok(customers);
     }
 
-    // http://localhost:8080/users/customers/table/block/{userId}
-    // Block unblocked user.
-    @PutMapping("/customers/table/block/{userId}")
-    public ResponseEntity<String> blockCustomer(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
+    // http://localhost:8080/users/customers/table/block-unblock/{userId}
+    // Toggle blocking. Block unblocked user or unblock blocked user.
+    @PutMapping("/customers/table/block-unblock/{userId}")
+    public ResponseEntity<String> toggleBlockingStatusOfCustomer(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
         long adminId = repeatedCode.fetchUserIdFromToken(request);
         Users user = repeatedCode.checkUser(adminId);
         repeatedCode.isAdmin(user);
-        adminUserService.toggleUserBlockStatus(userId, true);
-        return ResponseEntity.ok("Customer blocked successfully");
-    }
-
-    // http://localhost:8080/users/customers/table/unblock/{userId}
-    // Unblock blocked user.
-    @PutMapping("/customers/table/unblock/{userId}")
-    public ResponseEntity<String> unblockCustomer(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
-        long adminId = repeatedCode.fetchUserIdFromToken(request);
-        Users user = repeatedCode.checkUser(adminId);
-        repeatedCode.isAdmin(user);
-        adminUserService.toggleUserBlockStatus(userId, false);
-        return ResponseEntity.ok("Customer unblocked successfully");
+        return ResponseEntity.ok(adminUserService.toggleUserBlockStatus(userId));
     }
 
     // http://localhost:8080/users/customer/table/delete/{userId}
@@ -86,7 +80,9 @@ public class AdminUserController {
     }
 
     // http://localhost:8080/users/service-providers/graphs
-    // Return graph based overview of service providers.
+    // Return graph based overview of service providers. (Four type of graph data is return
+    // a. service provider growth based on months b. service provider growth in current month
+    // c. service provider growth in last 5 year d. how many service provider are from each city )
     @GetMapping("/service-providers/graphs")
     public ResponseEntity<?> getGraphBasedOverviewForServiceProvider(HttpServletRequest request) throws AccessDeniedException {
         long userId = repeatedCode.fetchUserIdFromToken(request);
@@ -97,6 +93,10 @@ public class AdminUserController {
 
     // http://localhost:8080/users/service-providers/table
     // Return table based data of service providers based on searches or filter.
+    // Return default data if filter not provided.(start date is 2025-01-01 and end date is current date and sort by user id)
+    // Keywords can be used to search for particular customer either we can specify email id or phone no of cutomer to search.
+    // Start and end date can be used to return customers joned between that date. We can specify only one of them or both of them.
+    // We can also apply sort by filter along with date filter which can allow either sorting based on joinDate or user id.
     @GetMapping("/service-providers/table")
     public ResponseEntity<List<ServiceProviderResponseDTO>> getAllServiceProviders(
             HttpServletRequest request,
@@ -112,26 +112,15 @@ public class AdminUserController {
         return ResponseEntity.ok(serviceProviders);
     }
 
-    // http://localhost:8080/users/service-providers/table/block/{userId}
-    // Block unblocked user.
-    @PutMapping("/service-providers/table/block/{userId}")
-    public ResponseEntity<String> blockServiceProvider(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
+    // http://localhost:8080/users/service-providers/table/block-unblock/{userId}
+    // Toggle blocking. Block unblocked provider or unblock blocked provider.
+    @PutMapping("/service-providers/table/block-unblock/{userId}")
+    public ResponseEntity<String> toggleBlockingStatusOfProvider(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
         long adminId = repeatedCode.fetchUserIdFromToken(request);
         Users user = repeatedCode.checkUser(adminId);
         repeatedCode.isAdmin(user);
-        adminUserService.toggleUserBlockStatus(userId, true);
-        return ResponseEntity.ok("Service provider blocked successfully");
-    }
 
-    // http://localhost:8080/users/service-providers/table/unblock/{userId}
-    // Unblock blocked user.
-    @PutMapping("/service-providers/table/unblock/{userId}")
-    public ResponseEntity<String> unblockServiceProvider(HttpServletRequest request, @PathVariable Long userId) throws AccessDeniedException {
-        long adminId = repeatedCode.fetchUserIdFromToken(request);
-        Users user = repeatedCode.checkUser(adminId);
-        repeatedCode.isAdmin(user);
-        adminUserService.toggleUserBlockStatus(userId, false);
-        return ResponseEntity.ok("Service provider unblocked successfully");
+        return ResponseEntity.ok(adminUserService.toggleUserBlockStatus(userId));
     }
 
     // http://localhost:8080/users/service-providers/table/delete/{providerId}

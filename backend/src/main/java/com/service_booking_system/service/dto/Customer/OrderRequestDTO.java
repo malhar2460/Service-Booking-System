@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class OrderRequestDTO {
     private Long userId;
     private Long serviceProviderId;
-    private String subServiceId;
+    private Long subServiceId;
     private String contactName;
     private String contactPhone;
     private String contactAddress;

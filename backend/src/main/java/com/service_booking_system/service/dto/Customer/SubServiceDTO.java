@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubServiceDTO {
-    private String subServiceId;
+    private Long subServiceId;
     private String subServiceName;
     private double price;
 }

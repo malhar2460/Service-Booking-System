@@ -13,5 +13,5 @@ public interface PriceRepository extends JpaRepository<Prices, Long> {
 
     List<Prices> findByServiceProvider(ServiceProvider serviceProvider);
 
-    Optional<Prices> findBySubServices_SubServiceId(String subServiceId);
+    Optional<Prices> findBySubServices_SubServiceId(Long subServiceId);
 }

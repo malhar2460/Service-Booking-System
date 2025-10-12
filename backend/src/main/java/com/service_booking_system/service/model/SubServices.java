@@ -31,11 +31,11 @@ public class SubServices {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "sub_service_id", updatable = false, nullable = false)
-    private String subServiceId;
+    private Long subServiceId;
 
     @NotBlank(message = "Sub service name is required.")
     @Size(min = 3, max = 100, message = "Sub service name must be between 3 and 100 characters.")
-    @Pattern(regexp = "^[A-Za-z+()\\s-]+$", message = "Service name contains invalid characters.")
+    @Pattern(regexp = "^[A-Za-z+()\\s-/]+$", message = "Service name contains invalid characters.")
     @Column(name = "sub_service_name", nullable = false,  length = 100)
     private String subServiceName;
 

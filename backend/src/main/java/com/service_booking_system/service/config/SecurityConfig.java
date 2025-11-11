@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         request -> request
                                 .requestMatchers("/register","/login","/verify-otp","/resend-otp","/services/**","/subservices/**",
-                                        "/cities/**", "/states")
+                                        "/cities/**", "/states", "/sp/**")
                                 .permitAll()
                                 .anyRequest().authenticated()
                 )

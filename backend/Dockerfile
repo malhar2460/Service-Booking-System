@@ -11,7 +11,7 @@ COPY backend/target/*.jar app.jar
 COPY ../.env /app/.env
 
 # Expose the application port
-EXPOSE 8082
+EXPOSE 8080
 
 # Run the app
 ENTRYPOINT ["java","-jar","/app/app.jar"]

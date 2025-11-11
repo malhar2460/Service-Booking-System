@@ -1,15 +1,6 @@
 
 services:
-  db:
-    image: postgres:15
-    container_name: service-booking-system-database
-    environment:
-      POSTGRES_DB: ${DOCKER_DB_NAME}
-      POSTGRES_USER: ${DOCKER_DB_HOST}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
-
+    
   backend:
     build: 
       context: .
@@ -18,15 +9,13 @@ services:
     ports:
       - "${DOCKER_SPRING_PORT}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:${DB_PORT}/${DOCKER_DB_NAME}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:${DB_PORT}/${DOCKER_DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DOCKER_DB_HOST}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-    depends_on:
-      - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
-      - .env
-
-  
+      - .env 
 
 networks:
   app_network:

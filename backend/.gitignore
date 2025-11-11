@@ -1,2 +1,17 @@
+.# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ / Eclipse / VS Code
 .idea/
+*.iml
+.project
+.classpath
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
 .env
